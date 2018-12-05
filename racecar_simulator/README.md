@@ -35,15 +35,15 @@ sudo apt-get install ros-kinetic-effort-controllers
 ```
 
 ## Build simulation packages
-	# Copy race folder to the src folder under current workspace
-	cp -r ~/F1tenth_BU/race_simulator ~/catkin_ws/src/
-	# Build the pacakges
-	source /opt/ros/kinetic/setup.bash
-	cd ..
-	catkin_make
-	source devel/setup.bash
+    # Copy race folder to the src folder under current workspace
+    cp -r ~/F1tenth_BU/race_simulator ~/catkin_ws/src/
+    # Build the pacakges
+    source /opt/ros/kinetic/setup.bash
+    cd ..
+    catkin_make
+    source devel/setup.bash
 
-### Run the simulated car in gazebo
+### Run the simulated car in Gazebo
 
 Launch the simulation environment by
 

@@ -1,18 +1,18 @@
 # Racecar Field Setup
 
 ## Install dependencies
-	sudo apt-get install ros-kinetic-joy ros-kinetic-joystick-drivers
-	
+    sudo apt-get install ros-kinetic-joy ros-kinetic-joystick-drivers
+    
 ## Build Race package
-	# Copy race folder to the src folder under current workspace
-	cp -r ~/F1tenth_BU/race ~/catkin_ws/src/
-	# Build the pacakges
-	source /opt/ros/kinetic/setup.bash
-	cd ..
-	catkin_make
-	source devel/setup.bash
+    # Copy race folder to the src folder under current workspace
+    cp -r ~/F1tenth_BU/race ~/catkin_ws/src/
+    # Build the pacakges
+    source /opt/ros/kinetic/setup.bash
+    cd ..
+    catkin_make
+    source devel/setup.bash
 
-## How to use google cartographer for slam
+## How to use google cartographer for SLAM
 
 ### 1) Install google cartographer and ROS integration
 follow instruction [here](https://google-cartographer-ros.readthedocs.io/en/latest/) or commandlines below.
@@ -45,13 +45,13 @@ follow instruction [here](https://google-cartographer-ros.readthedocs.io/en/late
 ### 2) Build a map and save it for localization later
 Substitute with **[mapping.launch](https://github.com/JmfanBU/F1tenth_BU/blob/master/slam/mapping.launch)** and **[demo\_backpack\_2d\_localization.launch](https://github.com/JmfanBU/F1tenth_BU/blob/master/slam/demo_backpack_2d_localization.launch)** in cartographer\_ros launch directory. Add **[mapping.lua](mapping.lua)** to configuration_files directory.
 
-	# Substitute launch files
-	cp ~/F1tenth_BU/slam/mapping.launch ~/slam_ws/src/cartographer_ros/cartographer_ros/launch
-	cp ~/F1tenth_BU/slam/demo_backpack_2d_localization.launch ~/slam_ws/src/cartographer_ros/cartographer_ros/launch
-	
-	# Add configuration files
-	cp ~/F1tenth_BU/slam/mapping.lua ~/slam_ws/src/cartographer_ros/cartographer_ros/configuration_files
-	
+    # Substitute launch files
+    cp ~/F1tenth_BU/slam/mapping.launch ~/slam_ws/src/cartographer_ros/cartographer_ros/launch
+    cp ~/F1tenth_BU/slam/demo_backpack_2d_localization.launch ~/slam_ws/src/cartographer_ros/cartographer_ros/launch
+    
+    # Add configuration files
+    cp ~/F1tenth_BU/slam/mapping.lua ~/slam_ws/src/cartographer_ros/cartographer_ros/configuration_files
+    
 Start lidar first.
 
     # start eth0 for lidar
@@ -70,7 +70,7 @@ Start ***cartographer\_node*** by following commandline
       # start rviz for visualization
       rosrun rviz rviz -d `rospack find cartographer_ros`/configuration_files/demo_2d.rviz
    
-Use joystick to manually control the car moving around to explore and build a map. A better map will be built if the car moves slowly and turns smoothly.
+Use the joystick to manually control the car moving around to explore and build a map. The built map will be more precise if the car moves slowly and turns smoothly.
 
     # start to joystick control 
     roslaunch race joystick.launch
@@ -90,8 +90,8 @@ Use the following commandline to localize the car
  A **/tf** from *map\_frame* (typically map) to *published\_frame*(typically base_link) is broadcasted and you can listen to the transformation to get the car's location in *map\_frame*.
 
 ## How to use PID control to track waypoint
- 	# start the path_tracking.py
- 	roslaunch race path_tracking.launch
+     # start the path_tracking.py
+     roslaunch race path_tracking.launch
 
  - Press the **RB** button and use two joysticks to manually control the car.
  - Press button **B** and the car will automatically track the waypoints.
