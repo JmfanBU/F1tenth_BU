@@ -1,8 +1,0 @@
-prefix=/home/ubuntu/catkin_ws/install
-
-Name: darknet_ros_msgs
-Description: Description of darknet_ros_msgs
-Version: 0.1.0
-Cflags: -I/home/ubuntu/catkin_ws/install/include
-Libs: -L/home/ubuntu/catkin_ws/install/lib 
-Requires: actionlib_msgs geometry_msgs sensor_msgs message_runtime std_msgs
