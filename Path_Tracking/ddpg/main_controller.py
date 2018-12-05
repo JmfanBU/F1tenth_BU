@@ -5,8 +5,8 @@ import logging
 import logger
 import math
 import sys
-sys.path.append("/home/f1/F1tenth_ws/src/Racecar/F1tenth-Simulation/racecar_simulator/racecar_control/scripts/")
-from rear_wheel_control_gazebo import Rear_Wheel_Path_Tracking_Feedback, Path_Track
+sys.path.append("~/catkin_ws/src/racecar_simulator/racecar_control/scripts/")
+from rear_wheel_control_gazebo import Rear_Wheel_Path_Tracking_Feedback
 from baselines import bench
 from baselines.common.misc_util import (
     set_global_seeds,

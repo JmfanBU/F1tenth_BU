@@ -12,7 +12,7 @@ import tensorflow as tf
 from mpi4py import MPI
 import rospy
 
-savingModelPath = '/home/f1/Parameterized_Controller_Synthesis/Path_Tracking/log/store_NN/'
+savingModelPath = '~/F1tenth_BU/Path_Tracking/log/store_NN/'
 
 def to_angle_square(obs):
     theta = np.angle(complex(obs[0], obs[1]))

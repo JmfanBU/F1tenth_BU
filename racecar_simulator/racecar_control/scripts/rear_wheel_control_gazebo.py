@@ -2,11 +2,9 @@
 
 Path tracking simulation with rear wheel feedback steering control and PID speed control.
 
-author: Atsushi Sakai(@Atsushi_twi)
-
 """
 import sys
-sys.path.append("/home/f1/Parameterized_Controller_Synthesis/Path_Tracking/ddpg/")
+sys.path.append("~/F1tenth_BU/Path_Tracking/ddpg/")
 import gym
 import math
 import matplotlib.pyplot as plt
@@ -23,8 +21,6 @@ from geometry_msgs.msg import Pose2D
 from race.msg import drive_param
 from sensor_msgs.msg import Joy
 import time
-#from cartographer_ros_msgs.srv import StartTrajectory, FinishTrajectory
-#from cartographer_ros_msgs.msg import TrajectoryOptions, SensorTopics
 
 Kp = 1.0  # speed propotional gain
 # steering control parameter
@@ -35,210 +31,8 @@ dt = 0.1  # [s]
 L = 0.5  # [m]
 
 show_animation = True
-#  show_animation = False
-class spec:
-
-    def __init__(self):
-        self.id = None
-
 def angle_normalize(x):
     return (((x+np.pi) % (2*np.pi)) - np.pi)
-
-class Rear_Wheel_Path_Tracking:
-
-    metadata = {
-        'render.modes': ['real_time', 'files'],
-        'figure_per_second': 0.0001
-    }
-    def __init__(self):
-        #target trajectory
-        self.cx = None
-        self.cy = None
-        self.cyaw = None
-        self.ck = None
-        #random generate the target trajectory
-#        xx = list(range(0, 100, 10))
-#        yy = [0]
-#        yy_np = self.np_random.random_integers(0, high = 5, size=(len(xx),))
-#        yy.extend(yy_np.tolist())
-#        self.cx, self.cy, self.cyaw, self.ck, s = cubic_spline_planner.calc_spline_course(xx, yy, ds = self.dt)
-
-
-        #goal position
-        self.goal = None
-#        self.goal = [xx[-1], yy[-1]]
-
-        #sample rate
-        self.dt = 0.1
-
-        #vehicle length
-        self.L = 2.9
-
-        #tolerace dis to the goal
-        self.goal_dis = 0.3
-
-        #no move check speed
-        self.stop_speed = 0.05
-
-        #reach goal
-        self.goal_flag = False
-
-        #actual trajectory
-        self.x = []
-        self.y = []
-        self.yaw = []
-        self.v = []
-
-        #view the process
-        self.view = False
-
-        #reward range
-        self.reward_range = None
-
-        #spec
-        self.spec = spec()
-
-        #eval_flag
-        self.eval_flag = False
-
-        #action and observation bound
-        action_high = np.array([np.pi/2])
-        observation_high = np.array([100., np.pi])
-
-        #define action and observation
-        self.action_space = spaces.Box(low = -action_high, high = action_high)
-        self.observation_space = spaces.Box(low = -observation_high, high = observation_high)
-
-        #random seed
-        self.seed()
-
-    def seed(self, seed=None):
-        self.np_random, seed = seeding.np_random(seed)
-        #random generate the target trajectory
-        xx = np.array([0.0, 3.0, 17.0, 10.0])
-        yy = np.array([0.0, 6.0, 25.0, 25.0])
-        sn = 100
-        self.cx, self.cy, self.cyaw, self.ck= bspline_planning(xx, yy, sn)
-        self.goal = [xx[-1], yy[-1]]
-        return [seed]
-
-    def step(self, u):
-        #get target pose index
-        target_ind, e = calc_nearest_index(self.state, self.cx, self.cy, self.cyaw)
-
-        #update the state
-        self.state = update(self.state, 0, u[0])
-        self.x.append(self.state.x)
-        self.y.append(self.state.y)
-        self.yaw.append(self.state.yaw)
-        self.v.append(self.state.v)
-
-        #next target index and new error
-        ind, e = calc_nearest_index(self.state, self.cx, self.cy, self.cyaw)
-
-        th_e = pi_2_pi(self.state.yaw - self.cyaw[ind])
-
-        #new observation
-        new_obs = np.array([e, angle_normalize(th_e)])
-
-        #check goal
-        dx = self.state.x - self.goal[0]
-        dy = self.state.y - self.goal[1]
-        dis = math.sqrt(dx**2 + dy**2)
-        #define costs
-        costs = 1. * (e**2) + 1. * angle_normalize(th_e)**2 + .005 * u[0]**2
-
-        if dis <= self.goal_dis:
-            print ("Goal")
-            costs += -10 * (self.goal[0]**2 + self.goal[1]**2)
-            self.goal_flag = True
-
-        #record total time
-        self.time += self.dt
-
-        #render the new action
-#        if ind % 1 == 0 and self.view:
-#            if self.eval_flag:
-#                plt.figure(num = 2)
-#            else:
-#                plt.figure(num = 1)
-#            plt.cla()
-#            plt.plot(self.cx, self.cy, '-r', label="course")
-#            plt.plot(self.x, self.y, 'ob', label='trajectory')
-#            plt.plot(self.cx[target_ind], self.cy[target_ind], 'xg', label='target')
-#            plt.grid(True)
-#            plt.title("speed[km/h]:" + str(round(self.state.v * 3.6, 2)) +
-#                      ", target index:=" + str(target_ind) + ", time:=" + str(self.time))
-#            plt.pause(0.0000000001)
-
-        #fail-false alarm
-        if self.time > 50:
-            costs += 0.01 * abs(dis**2)
-            return new_obs, -costs, True, {"episode": None,
-                                           "status":'Unable to goal'}
-
-        return new_obs, -costs, self.goal_flag, {}
-
-    def render(self, mode):
-        self.view = True
-
-    def reset(self):
-        #plot the result
-        if self.view:
-            if self.eval_flag:
-                plt.figure(num = 2)
-            else:
-                plt.figure(num = 1)
-            plt.cla()
-            plt.plot(self.cx, self.cy, "-r", label="spline")
-            plt.plot(self.x, self.y, "-g", label="tracking")
-            plt.grid(True)
-            plt.axis("equal")
-            plt.xlabel("x[m]")
-            plt.ylabel("y[m]")
-            plt.legend()
-            plt.pause(0.01)
-
-        #reset state
-        self.state = State(x=0.0, y=0.0, yaw=0.0, v=10.0/3.6)
-        self.x = []
-        self.y = []
-        self.yaw = []
-        self.v = []
-        self.x.append(self.state.x)
-        self.y.append(self.state.y)
-        self.yaw.append(self.state.yaw)
-        self.v.append(self.state.v)
-
-        #random generate the target trajectory
-#        xx = list(range(0, 100, 10))
-#        yy = [0]
-#        yy_np = self.np_random.random_integers(0, high = 5, size=(len(xx),))
-#        yy.extend(yy_np.tolist())
-#        self.cx, self.cy, self.cyaw, self.ck, s = cubic_spline_planner.calc_spline_course(xx, yy, ds = self.dt)
-
-        #reset the time
-        self.time = 0.0
-
-        #reset the goal
-#        self.goal = [xx[-1], yy[-1]]
-        self.goal_flag = False
-
-        #initialize the observation
-        ind, e = calc_nearest_index(self.state, self.cx, self.cy, self.cyaw)
-        th_e = pi_2_pi(self.state.yaw - self.cyaw[ind])
-        obs = np.array([e, angle_normalize(th_e)])
-
-        return obs
-
-def call_python_version(Version, Module, Function, ArgumentList):
-    gw      = execnet.makegateway("popen//python=python%s" % Version)
-    channel = gw.remote_exec("""
-        from %s import %s as the_function
-        channel.send(the_function(*channel.receive()))
-    """ % (Module, Function))
-    channel.send(ArgumentList)
-    return channel.receive()
 
 class Rear_Wheel_Path_Tracking_Feedback:
 
@@ -248,7 +42,6 @@ class Rear_Wheel_Path_Tracking_Feedback:
     }
     def __init__(self):
         #ros init
-        
         rospy.init_node("path_tracking")
         self.listener = rospy.Subscriber('/Car_Pose', Pose2D, self._get_Pose)
         self.joy = rospy.Subscriber('/joy', Joy, self.control)
@@ -261,7 +54,7 @@ class Rear_Wheel_Path_Tracking_Feedback:
         self.cy = None
         self.cyaw = None
         self.ck = None
-        #random generate the target trajectory
+#        random generate the target trajectory
 #        xx = list(range(0, 100, 10))
 #        yy = [0]
 #        yy_np = self.np_random.random_integers(0, high = 5, size=(len(xx),))
@@ -273,7 +66,6 @@ class Rear_Wheel_Path_Tracking_Feedback:
 
         #goal position
         self.goal = None
-#        self.goal = [xx[-1], yy[-1]]
 
         #sample rate
         self.dt = 0.05
@@ -301,9 +93,6 @@ class Rear_Wheel_Path_Tracking_Feedback:
 
         #reward range
         self.reward_range = None
-
-        #spec
-        self.spec = spec()
 
         #eval_flag
         self.eval_flag = False
@@ -336,14 +125,6 @@ class Rear_Wheel_Path_Tracking_Feedback:
 
     def seed(self, seed=None):
         self.np_random, seed = seeding.np_random(seed)
-        #random generate the target trajectory
-#        xx = list(range(0, 100, 10))
-#        yy = [0]
-#        yy_np = self.np_random.random_integers(0, high = 5, size=(len(xx),))
-#        yy.extend(yy_np.tolist())
-#        self.cx, self.cy, self.cyaw, self.ck, s = cubic_spline_planner.calc_spline_course(xx, yy, ds = self.dt)
-#        self.sp = calc_speed_profile(self.cx, self.cy, self.cyaw, 10/3.6)
-#        self.goal = [xx[-1], yy[-1]]
         xx = np.array([-1.5, -1.0, 1.5, 5.0])
         yy = np.array([1.5, 4.0, 5.5, 5.5])
         sn = 100
@@ -366,15 +147,6 @@ class Rear_Wheel_Path_Tracking_Feedback:
             drive.angle = 0
             self.pub.publish(drive)
 
-        # if listener.canTransform('/map', '/base_link', t):
-        #      position, quaternion = listener.lookupTransform('/map', '/base_link', t)
-        #      yaw = math.atan2(2.0*(quaternion[3]*quaternion[2] + quaternion[0] * quaternion[1]), 1.0-2.0*(quaternion[1]*quaternion[1] + quaternion[2]*quaternion[2]))
-        #      msg = drive_param()
-        #      msg.velocity = 10
-        #      self.state.v = 10
-        #      msg.angle = u[0]
-        #      rospy.loginfo("velocity:%lf,angle:%lf",msg.velocity,msg.angle)
-        #      self.pub.publish(msg)
         #update the state
         self.state = update(self.state, self.pose.x, self.pose.y, self.pose.theta)
         self.x.append(self.state.x)
@@ -384,10 +156,6 @@ class Rear_Wheel_Path_Tracking_Feedback:
 
         #next target index and new error
         ind, e = calc_nearest_index(self.state, self.cx, self.cy, self.cyaw)
-#       if target_ind == ind:
-#           ind += 1
-#           e = math.sqrt((self.state.x - self.cx[ind])**2 + (self.state.y - self.cy[ind])**2)
-#
         th_e = pi_2_pi(self.state.yaw - self.cyaw[ind])
 
         #new observation
@@ -421,24 +189,6 @@ class Rear_Wheel_Path_Tracking_Feedback:
         self.view = True
 
     def reset(self):
-        #reset_simulation = rospy.ServiceProxy('/gazebo/reset_world', Empty)
-        # reset_traj_finish = rospy.ServiceProxy('/finish_trajectory', FinishTrajectory)
-        # reset_traj = rospy.ServiceProxy('/start_trajectory', StartTrajectory)
-        # traj = TrajectoryOptions()
-        # traj.tracking_frame = "base_link"
-        # traj.published_frame = "base_link"
-        # traj.odom_frame = "odom"
-        # traj.num_laser_scans = 1
-        # traj.num_subdivisions_per_laser_scan = 1
-        # traj.rangefinder_sampling_ratio = 1.
-        # traj.odometry_sampling_ratio = 1.
-        # traj.fixed_frame_pose_sampling_ratio = 1.
-        # traj.landmarks_sampling_ratio = 1.
-        # sensor = SensorTopics()
-        # sensor.laser_scan_topic = "/scan"
-        # reset_traj_finish(1)
-        # reset_traj(traj, sensor)
-        #reset_simulation()
         self.count += 1
         #plot the result
         if self.view:
@@ -491,215 +241,6 @@ class Rear_Wheel_Path_Tracking_Feedback:
         th_e = pi_2_pi(self.state.yaw - self.cyaw[ind])
         obs = np.array([e, angle_normalize(th_e), self.ck[ind], self.state.v])
         return obs
-
-class Path_Track:
-
-    metadata = {
-        'render.modes': ['real_time', 'files'],
-        'figure_per_second': 0.0001
-    }
-    def __init__(self):
-        #target trajectory
-        self.cx = None
-        self.cy = None
-        self.cyaw = None
-        self.ck = None
-        #random generate the target trajectory
-#        xx = list(range(0, 100, 10))
-#        yy = [0]
-#        yy_np = self.np_random.random_integers(0, high = 5, size=(len(xx),))
-#        yy.extend(yy_np.tolist())
-#        self.cx, self.cy, self.cyaw, self.ck, s = cubic_spline_planner.calc_spline_course(xx, yy, ds = self.dt)
-
-        #iterations
-        self.count = 0
-
-        #goal position
-        self.goal = None
-#        self.goal = [xx[-1], yy[-1]]
-
-        #sample rate
-        self.dt = 0.1
-
-        #vehicle length
-        self.L = 2.9
-
-        #tolerace dis to the goal
-        self.goal_dis = 0.5
-
-        #no move check speed
-        self.stop_speed = 0.05
-
-        #reach goal
-        self.goal_flag = False
-
-        #actual trajectory
-        self.x = []
-        self.y = []
-        self.yaw = []
-        self.v = []
-
-        #view the process
-        self.view = False
-
-        #reward range
-        self.reward_range = None
-
-        #spec
-        self.spec = spec()
-
-        #eval_flag
-        self.eval_flag = False
-
-        #speed target
-        self.sp = None
-
-        #action and observation bound
-        action_high = np.array([200., 100., 10.])
-        observation_high = np.array([30./3.6, np.pi])
-
-        #define action and observation
-        self.action_space = spaces.Box(low = -action_high, high = action_high)
-        self.observation_space = spaces.Box(low = -observation_high, high = observation_high)
-
-        #random seed
-        self.seed()
-
-    def seed(self, seed=None):
-        self.np_random, seed = seeding.np_random(seed)
-        #random generate the target trajectory
-#        xx = list(range(0, 100, 10))
-#        yy = [0]
-#        yy_np = self.np_random.random_integers(0, high = 5, size=(len(xx),))
-#        yy.extend(yy_np.tolist())
-#        self.cx, self.cy, self.cyaw, self.ck, s = cubic_spline_planner.calc_spline_course(xx, yy, ds = self.dt)
-#        self.sp = calc_speed_profile(self.cx, self.cy, self.cyaw, 10/3.6)
-#        self.goal = [xx[-1], yy[-1]]
-        return [seed]
-
-    def step(self, u):
-        #get target pose index
-        target_ind, e = calc_nearest_index(self.state, self.cx, self.cy, self.cyaw)
-
-        a = PIDControl(self.sp[target_ind], self.state.v)
-        #update the state
-        self.state = update(self.state, a, u[0])
-        self.x.append(self.state.x)
-        self.y.append(self.state.y)
-        self.yaw.append(self.state.yaw)
-        self.v.append(self.state.v)
-
-        #next target index and new error
-        ind, e = calc_nearest_index(self.state, self.cx, self.cy, self.cyaw)
-#       if target_ind == ind:
-#           ind += 1
-#           e = math.sqrt((self.state.x - self.cx[ind])**2 + (self.state.y - self.cy[ind])**2)
-#
-        th_e = pi_2_pi(self.state.yaw - self.cyaw[ind])
-
-        #new observation
-        new_obs = np.array([self.state.v, angle_normalize(th_e)])
-
-        #check goal
-        dx = self.state.x - self.goal[0]
-        dy = self.state.y - self.goal[1]
-        dis = math.sqrt(dx**2 + dy**2)
-        #define costs
-        #costs = .1 * (e**2) + .1 * angle_normalize(th_e)**2 + .05 * u[0]**2 + .01 * (u[0]/ self.state.v - self.ck[ind])**2 + 0.0001 * self.time**2
-        costs = .1 * angle_normalize(th_e)**2
-        if dis <= self.goal_dis:
-            print ("Goal")
-            #costs += -1. * (self.goal[0]**2 + self.goal[1]**2)
-            self.goal_flag = True
-
-        #record total time
-        self.time += self.dt
-
-        #render the new action
-#        if ind % 1 == 0 and self.view:
-#            if self.eval_flag:
-#                plt.figure(num = 2)
-#            else:
-#                plt.figure(num = 1)
-#            plt.cla()
-#            plt.plot(self.cx, self.cy, '-r', label="course")
-#            plt.plot(self.x, self.y, 'ob', label='trajectory')
-#            plt.plot(self.cx[target_ind], self.cy[target_ind], 'xg', label='target')
-#            plt.grid(True)
-#            plt.title("speed[km/h]:" + str(round(self.state.v * 3.6, 2)) +
-#                      ", target index:=" + str(target_ind) + ", time:=" + str(self.time))
-#            plt.pause(0.0000000001)
-
-        #fail-false alarm
-        if self.time > 50:
-            costs += 0.01 * dis**2
-            return new_obs, -costs, True, {"episode": None,
-                                           "status":'Unable to goal'}
-
-        return new_obs, -costs, self.goal_flag, {}
-
-    def render(self, mode):
-        self.view = True
-
-    def reset(self):
-
-        self.count += 1
-        #plot the result
-        if self.view:
-            if self.eval_flag:
-                plt.figure(num = 2)
-            else:
-                plt.figure(num = 1)
-            plt.cla()
-            plt.plot(self.cx, self.cy, "-r", label="spline")
-            plt.plot(self.x, self.y, "-g", label="tracking")
-            plt.grid(True)
-            plt.axis("equal")
-            plt.xlabel("x[m]")
-            plt.ylabel("y[m]")
-            plt.legend()
-            if self.eval_flag:
-                dir_eval = '/home/jiameng/Parameterized_Controller_Synthesis/Path_Tracking/log/eval_results2/'
-                plt.savefig(dir_eval + 'eval_' + str(int(self.count)) + '.png')
-            else:
-                dir_train = '/home/jiameng/Parameterized_Controller_Synthesis/Path_Tracking/log/train_results2/'
-                plt.savefig(dir_train + 'train_' + str(int(self.count)) + '.png')
-        #reset state
-        self.state = State(x=0.0, y=0.0, yaw=0.0, v=0.0)
-        self.x = []
-        self.y = []
-        self.yaw = []
-        self.v = []
-        self.x.append(self.state.x)
-        self.y.append(self.state.y)
-        self.yaw.append(self.state.yaw)
-        self.v.append(self.state.v)
-
-        #random generate the target trajectory
-        xx = list(range(0, 100, 10))
-        yy = [0]
-        yy_np = self.np_random.random_integers(0, high = 5, size=(len(xx),))
-        yy.extend(yy_np.tolist())
-        self.cx, self.cy, self.cyaw, self.ck, s = cubic_spline_planner.calc_spline_course(xx, yy, ds = self.dt)
-
-      #speed target
-        self.sp = calc_speed_profile(self.cx, self.cy, self.cyaw, 10/3.6)
-
-       #reset the time
-        self.time = 0.0
-
-        #reset the goal
-        self.goal = [xx[-1], yy[-1]]
-        self.goal_flag = False
-
-        #initialize the observation
-        ind, e = calc_nearest_index(self.state, self.cx, self.cy, self.cyaw)
-        th_e = pi_2_pi(self.state.yaw - self.cyaw[ind])
-        obs = np.array([self.state.v, angle_normalize(th_e)])
-        return obs
-
-
-
 
 class State:
 
@@ -861,58 +402,3 @@ def calc_speed_profile(cx, cy, cyaw, target_speed):
     return speed_profile
 
 
-def main():
-    print("rear wheel feedback tracking start!!")
-    ax = [4.0, 6.0, 8.0, 10.0, 12.0, 14.0, 16.0]
-    ay = [-2.0, 0.0, 2.0, 4.0, 6.0, 8.0, 10.0]
-    xx = list(range(0, 100, 4))
-    yy = [0.]
-    xy = np.random.random_integers(0, high = 5, size = (len(xx)-1,))
-    #xx.extend(xy[0].tolist())
-    yy.extend(xy.tolist())
-    goal = [ax[-1], ay[-1]]
-    goal = [xx[-1], yy[-1]]
-
-    cx, cy, cyaw, ck, s = cubic_spline_planner.calc_spline_course(
-        xx, yy, ds=0.1)
-    target_speed = 10.0 / 3.6
-
-    sp = calc_speed_profile(cx, cy, cyaw, target_speed)
-
-    t, x, y, yaw, v, goal_flag = closed_loop_prediction(
-        cx, cy, cyaw, ck, sp, goal)
-
-    # Test
-    assert goal_flag, "Cannot goal"
-
-    if show_animation:
-        plt.close()
-        flg, _ = plt.subplots(1)
-        plt.plot(ax, ay, "xb", label="input")
-        plt.plot(cx, cy, "-r", label="spline")
-        plt.plot(x, y, "-g", label="tracking")
-        plt.grid(True)
-        plt.axis("equal")
-        plt.xlabel("x[m]")
-        plt.ylabel("y[m]")
-        plt.legend()
-
-        flg, ax = plt.subplots(1)
-        plt.plot(s, [math.degrees(iyaw) for iyaw in cyaw], "-r", label="yaw")
-        plt.grid(True)
-        plt.legend()
-        plt.xlabel("line length[m]")
-        plt.ylabel("yaw angle[deg]")
-
-        flg, ax = plt.subplots(1)
-        plt.plot(s, ck, "-r", label="curvature")
-        plt.grid(True)
-        plt.legend()
-        plt.xlabel("line length[m]")
-        plt.ylabel("curvature [1/m]")
-
-        plt.show()
-
-
-if __name__ == '__main__':
-    main()
