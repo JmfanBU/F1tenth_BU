@@ -12,7 +12,7 @@ For ros installation, please refer to [here](http://wiki.ros.org/kinetic/Install
 ### 3) Sensor integration
 For sensor integration, please refer to [here](http://f1tenth.org/lectures).
 ### 4) Field test
-To perform field tests on the physical platform, perform installation steps 1 - 3 on the NVIDIA Jetson TX1 and continure [here]().
+To perform field tests on the physical platform, perform installation steps 1 - 3 on the NVIDIA Jetson TX1 and continure [here](https://github.com/JmfanBU/F1tenth_BU/tree/master/race).
 ### 5) Simulation
-To perform tests in Gazebo, perfrom the installations steps 1 - 3 on a PC and continue [here]().
+To perform tests in Gazebo, perfrom the installations steps 1 - 3 on a PC and continue [here](https://github.com/JmfanBU/F1tenth_BU/tree/master/racecar_simulator).
  
