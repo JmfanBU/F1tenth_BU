@@ -20,19 +20,16 @@ import threading
 import signal
 import logging
 from setproctitle import *
-from os.path import expanduser
-
 
 setproctitle('master_test') # set process name for ROS to identify
 
-TIMEALLOWED = 5000 # change to a large number(e.g. 5 minutes) for actual tests
+TIMEALLOWED = 10 # change to a large number(e.g. 5 minutes) for actual tests
 
 """ Clear all existing generated files"""
 """ TODO: implement the Initialize function once the AI code is made"""
 def Initialize():
 	#delete bag files
-	home = expanduser("~")
-	os.chdir(home+'/catkin_ws/src/racecar_simulator/racecar_gazebo/launch/test_runs/test_results')
+	os.chdir('/home/f1/catkin_ws/src/racecar_simulator/racecar_gazebo/launch/test_runs/test_results')
 	subprocess.call('rm *.bag', shell=True)	
 
 """ runs roslaunch file to implement test run in gazebo and terminates once the robot reaches its goal"""
@@ -44,7 +41,7 @@ def ROS():
 		simulation1 = subprocess.Popen(cmd1, stdout=subprocess.PIPE, shell=True, preexec_fn=os.setsid) 
 		ros_node_pid1 = os.getpgid(simulation1.pid)
 
-		time.sleep(5)
+		time.sleep(3)
 
 		cmd2 = 'roslaunch hector_slam_launch tutorial.launch'
 		simulation2 = subprocess.Popen(cmd2, stdout=subprocess.PIPE, shell=True, preexec_fn=os.setsid) 
@@ -76,9 +73,8 @@ def ROS():
 """ Output is .png file (2D array of path) and .world file."""
 # TODO: - standardize location of .jar file and outputs 
 def WorldGenerator():
-	home = expanduser("~")
-	os.chdir(home+'/catkin_ws/src/gzbo2_generator')
-	subprocess.call('java Generator1', shell=True)
+	os.chdir('/home/f1/f1tenth/gzbo2_generator/')
+	subprocess.call('java -jar Generator.jar', shell=True)
 	logging.info('WorldGenerator ending...')
 
 
@@ -99,8 +95,8 @@ def Latest_file(file_extension, path):
 	return newest
 
 def main():
-	home = expanduser("~")
-	logging.basicConfig(filename=home+'/catkin_ws/src/test.log', level=logging.DEBUG,format='%(asctime)s:%(levelname)s:%(message)s')
+
+	logging.basicConfig(filename='/home/f1/f1tenth/test.log', level=logging.DEBUG,format='%(asctime)s:%(levelname)s:%(message)s')
 
 
 	''' number of iterations'''
@@ -119,7 +115,7 @@ def main():
 	
 	for i in range(0,iterations):
 		'''STEP 1'''
-		WorldGenerator()
+		#WorldGenerator()
 		#time.sleep(2)
 		#logging.info('WorldGenerator ended')
 

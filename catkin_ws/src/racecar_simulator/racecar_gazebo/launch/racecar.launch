@@ -1,18 +1,11 @@
 <?xml version="1.0"?>
 <launch>
-    <!-- Robot pose -->
-  <arg name="x" default="0"/>
-  <arg name="y" default="0"/>
-  <arg name="z" default="0"/>
-  <arg name="roll" default="0"/>
-  <arg name="pitch" default="0"/>
-  <arg name="yaw" default="0"/>
   <arg name="world_name" default="racecar" />
   <arg name="gui" default="true" />
   <arg name="run_camera" default="false"/>
 
   <include file="$(find gazebo_ros)/launch/empty_world.launch">
-    <arg name="world_name" value="$(find racecar_gazebo)/worlds/$(arg world_name).world"/>
+    <!--arg name="world_name" value="$(find racecar_gazebo)/worlds/$(arg world_name).world"/-->
     <arg name="gui" value="$(arg gui)"/>
   </include>
 
@@ -20,19 +13,20 @@
   <param name="robot_description" command="$(find xacro)/xacro '$(find racecar_description)/urdf/racecar.xacro'" />
 
   <!-- push robot_description to factory and spawn robot in gazebo -->
-  <node name="racecar_spawn" pkg="gazebo_ros" type="spawn_model" output="screen" args="-urdf -param robot_description -model racecar -z 0.05 
-    -x $(arg x) -y $(arg y) -z $(arg z) -R $(arg roll) -P $(arg pitch) -Y $(arg yaw)" />
+  <node name="racecar_spawn" pkg="gazebo_ros" type="spawn_model" output="screen" args="-urdf -param robot_description -model racecar -x -1.5 -y 1.5 -z 0.05 -Y 1.30" />
 
   <!-- odom_to_base_link 
   <node pkg="tf" type = "static_transform_publisher" name="odom_to_base_link" 
     args="0 0 0 0 0 0 odom base_link 100" /> -->
 
   <!-- nav_to_base_link --> 
-  <node pkg="tf" type = "static_transform_publisher" name="nav_to_base_link" 
-    args="0 0 0 0 0 0 nav base_link 50" /> 
+  <!--<node pkg="tf" type = "static_transform_publisher" name="nav_to_base_link" 
+    args="0 0 0 0 0 0 nav base_link 100" /--> 
 
   <!-- ros_control racecar launch file -->
   <include file="$(find racecar_control)/launch/racecar_control.launch" ns="/"/>
+
+  <node name="localization" pkg="racecar_control" type="localization.py" output="screen" />
 
 
 </launch>

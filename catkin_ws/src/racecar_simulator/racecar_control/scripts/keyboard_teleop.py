@@ -1,9 +1,7 @@
 #!/usr/bin/env python
 
 import rospy
-from race.msg import drive_param
-from geometry_msgs.msg import Point
-
+from racecar_control.msg import drive_param
 import curses
 
 forward = 0;
@@ -15,8 +13,7 @@ curses.cbreak()
 stdscr.keypad(1)
 rospy.init_node('keyop', anonymous=True)
 
-#pub = rospy.Publisher('drive_parameters', drive_param, queue_size=10)
-pub = rospy.Publisher('drive_parameters', Point, queue_size=10)
+pub = rospy.Publisher('drive_parameters', drive_param, queue_size=10)
 
 
 stdscr.refresh()
@@ -67,9 +64,8 @@ while key != ord('q'):
 		left = 0
 		forward = 0
 		stdscr.addstr(5, 20, "Stop")
-	#msg = drive_param()
-	msg = Point()
-	msg.x = forward  # velocity
-	msg.y = left  # speed
+	msg = drive_param()
+	msg.velocity = forward
+	msg.angle = left
 	pub.publish(msg)
 curses.endwin()

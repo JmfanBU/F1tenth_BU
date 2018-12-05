@@ -1,0 +1,38 @@
+Traceback (most recent call last):
+  File "path_tracking.py", line 16, in <module>
+    import tf
+  File "/opt/ros/indigo/lib/python2.7/dist-packages/tf/__init__.py", line 28, in <module>
+    from tf2_ros import TransformException as Exception, ConnectivityException, LookupException, ExtrapolationException
+  File "/opt/ros/indigo/lib/python2.7/dist-packages/tf2_ros/__init__.py", line 39, in <module>
+    from .buffer_interface import *
+  File "/opt/ros/indigo/lib/python2.7/dist-packages/tf2_ros/buffer_interface.py", line 32, in <module>
+    import roslib; roslib.load_manifest('tf2_ros')
+  File "/opt/ros/indigo/lib/python2.7/dist-packages/roslib/launcher.py", line 62, in load_manifest
+    sys.path = _generate_python_path(package_name, _rospack) + sys.path
+  File "/opt/ros/indigo/lib/python2.7/dist-packages/roslib/launcher.py", line 93, in _generate_python_path
+    m = rospack.get_manifest(pkg)
+  File "/usr/lib/python2.7/dist-packages/rospkg/rospack.py", line 167, in get_manifest
+    return self._load_manifest(name)
+  File "/usr/lib/python2.7/dist-packages/rospkg/rospack.py", line 211, in _load_manifest
+    retval = self._manifests[name] = parse_manifest_file(self.get_path(name), self._manifest_name, rospack=self)
+  File "/usr/lib/python2.7/dist-packages/rospkg/manifest.py", line 408, in parse_manifest_file
+    from rosdep2.rospack import init_rospack_interface, is_ros_package, is_system_dependency, is_view_empty
+  File "/usr/lib/python2.7/dist-packages/rosdep2/__init__.py", line 45, in <module>
+    from .lookup import RosdepDefinition, RosdepView, RosdepLookup, \
+  File "/usr/lib/python2.7/dist-packages/rosdep2/lookup.py", line 44, in <module>
+    from .sources_list import SourcesListLoader
+  File "/usr/lib/python2.7/dist-packages/rosdep2/sources_list.py", line 49, in <module>
+    from .gbpdistro_support import get_gbprepo_as_rosdep_data, download_gbpdistro_as_rosdep_data
+  File "/usr/lib/python2.7/dist-packages/rosdep2/gbpdistro_support.py", line 18, in <module>
+    from .platforms.debian import APT_INSTALLER
+  File "/usr/lib/python2.7/dist-packages/rosdep2/platforms/debian.py", line 37, in <module>
+    from .pip import PIP_INSTALLER
+  File "/usr/lib/python2.7/dist-packages/rosdep2/platforms/pip.py", line 33, in <module>
+    import pkg_resources
+  File "/usr/lib/python2.7/dist-packages/pkg_resources.py", line 2762, in <module>
+    list(map(working_set.add_entry,sys.path)) # match order
+  File "/usr/lib/python2.7/dist-packages/pkg_resources.py", line 484, in add_entry
+    for dist in find_distributions(entry, True):
+  File "/usr/lib/python2.7/dist-packages/pkg_resources.py", line 1817, in find_on_path
+    lower = entry.lower()
+KeyboardInterrupt
