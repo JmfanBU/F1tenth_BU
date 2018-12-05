@@ -48,7 +48,8 @@ sudo apt-get install ros-kinetic-effort-controllers
 Launch the simulation environment by
 
     source ~/catkin_ws/devel/setup.bash
-    roslaunch racecar_gazebo racecar.launch
+    # Multiple environments with different suffix
+    roslaunch racecar_gazebo racecar*.launch
     
 Keyboard control node
 
