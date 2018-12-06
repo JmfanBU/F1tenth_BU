@@ -50,13 +50,9 @@ Launch the simulation environment by
     source ~/catkin_ws/devel/setup.bash
     # Multiple environments with different suffix
     roslaunch racecar_gazebo racecar*.launch
-![image](./env_pics/racecar_cones.jpg | width=100)
-*Cones Environment*
-![image](./env_pics/racecar_tunnel.jpg | width=100)
-*Tunnel Environment*
-![image](./env_pics/racecar_walker.jpg | width=100)
-*Walker Environment*
-
+<img src="./env_pics/racecar_cones.jpg" alt="Cones Environment" width="200"/>
+<img src="./env_pics/racecar_tunnel.jpg" alt="Tunnel Environment" width="200"/>
+<img src="./env_pics/racecar_Walker.jpg" alt="Walker Environment" width="200"/>
     
 Keyboard control node
 
