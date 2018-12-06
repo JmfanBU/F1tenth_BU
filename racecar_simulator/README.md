@@ -65,6 +65,7 @@ Launch the simulation environment by
 
 
     
-Keyboard control node
+Keyboard/Path_tracking control node
 
     <node pkg="racecar_control" type="keyboard_teleop.py" name="keyboard_teleop" output="screen" launch-prefix="xterm -e"/>
+    <node pkg="racecar_control" type="path_tracking.py" name="path_tracking" output="screen" launch-prefix="xterm -e"/>
