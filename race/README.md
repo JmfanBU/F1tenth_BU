@@ -52,6 +52,10 @@ Substitute with **[mapping.launch](https://github.com/JmfanBU/F1tenth_BU/blob/ma
     # Add configuration files
     cp ~/F1tenth_BU/slam/mapping.lua ~/slam_ws/src/cartographer_ros/cartographer_ros/configuration_files
     
+    # Rebuild the package
+    catkin_make_isolated --install --use-ninja 
+    source install_isolated/setup.bash
+    
 Start lidar first.
 
     # start eth0 for lidar
