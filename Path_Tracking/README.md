@@ -15,3 +15,7 @@ The trajectory is generated from *bspline_path.py*, which is a piece-wise linear
 A gym-like environment of F1tenth defined in [rear\_wheel\_control_gazebo.py](https://github.com/JmfanBU/F1tenth_BU/blob/master/racecar_simulator/racecar_control/scripts/rear_wheel_control_gazebo.py).
 
 The gazebo simulation will slow down the training process.
+
+## LQR Steering Control Simulation
+The planned path is provided by cubic path planner. The waypoint can be set in the main function.
+`python lqr_steer_control.py`
