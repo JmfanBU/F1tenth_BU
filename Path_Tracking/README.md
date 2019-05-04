@@ -19,3 +19,5 @@ The gazebo simulation will slow down the training process.
 ## LQR Steering Control Simulation
 The planned path is provided by cubic path planner. The waypoint can be set in the main function.
 - `python lqr_steer_control.py`
+
+The system parameters can be changed inside *lqr_steer_control.py* for tests with variance.
