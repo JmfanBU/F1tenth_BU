@@ -129,6 +129,7 @@ Use the arrow keys on the keyboard to manually control the car moving around to 
 
     # start to keyboard control 
     python ~/race/src/keyboard.py
+    
 
 After you finish building the map, save the map into a **.pbstram** file for further use. 
 
@@ -143,3 +144,13 @@ Use the following commandline to localize the car
       # start rviz for visualization
       rosrun rviz rviz -d `rospack find cartographer_ros`/configuration_files/demo_2d.rviz
  A **/tf** from *map\_frame* (typically map) to *published\_frame*(typically base_link) is broadcasted and you can listen to the transformation to get the car's location in *map\_frame*.
+ 
+ ### 4) Path tracking in racecar_wg environment
+    # start gazebo simulation
+    roslaunch racecar_gazebo racecar_wg.launch
+    # pid control with localization directly from simulator
+    roslaunch racecar_control racecar_control_ideal_pid.launch
+    # lqr steer controller on straight line with lidar localization
+    roslaunch racecar_control racecar_control_lqr_line.launch
+    # lqr steer controller on cubic path with lidar localization
+    roslaunch racecar_control racecar_control_lqr_cubic.launch
