@@ -18,11 +18,7 @@
     <remap from="/joint_states" to="/racecar/joint_states" />
   </node>
 
-  <!-- servo node -->
-  <node pkg="racecar_control" type="servo_commands.py" name="servo_commands" output="screen"> </node>
+  <!-- control node -->
   <node pkg="racecar_control" type="path_tracking_ideal.py" name="control" output="screen" launch-prefix="xterm -e"> </node>
-  <node pkg="racecar_control" type="dist_finder.py" name="dist_finder" output="screen" launch-prefix="xterm -e"> </node>
-  <!-- Allow for Gazebo to broadcast odom -->
-  <node pkg="racecar_gazebo" name="gazebo_odometry_node" type="gazebo_odometry.py"/>
 
 </launch>
