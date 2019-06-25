@@ -109,6 +109,7 @@ Substitute with **[mapping_sim.launch](https://github.com/JmfanBU/F1tenth_BU/blo
     
     # Add configuration files
     cp ~/F1tenth_BU/slam/mapping.lua ~/slam_ws/src/cartographer_ros/cartographer_ros/configuration_files
+    cp -r ~/F1tenth_BU/slam/racecar_description ~/slam_ws/build_isolated/cartographer_ros/
     
     # Rebuild the package
     catkin_make_isolated --install --use-ninja 
