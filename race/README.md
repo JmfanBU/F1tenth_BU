@@ -97,6 +97,6 @@ Use the following commandline to localize the car
      # start the path_tracking.py
      roslaunch race path_tracking.launch
 
- - Press the **RB** button and use two joysticks to manually control the car.
- - Press button **B** and the car will automatically track the waypoints.
+ - Press and hold the **RB** button and use two joysticks to manually control the car.
+ - Press and hold button **B** and the car will automatically track the waypoints.
  - After the car finishes tracking waypoints, press button **A** to reset waypoints.
