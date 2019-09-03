@@ -15,7 +15,8 @@ from racecar_control.msg import drive_param
 #goals = [[2.974, 3.661]]
 #goals = [[-3.968, 5.635], [-3.960, 9.532], [-3.131, 12.867]] #Gazebo
 #goals = [[0.410, -2.703], [2.944, 3.444], [6.689, 4.616], [10.100, 4.947]] #Lidar
-goals = [[-0.2, 1.189], [-3.351, 3.409], [-4.310, 9.536]] #2.323
+#goals = [[-0.2, 1.189], [-3.351, 3.409], [-4.310, 9.536]] #2.323
+goals = [[3.5, -4.0], [5.0, 2.0], [3.5, 8.0], [-3.5, 8.0], [-3.5, 4.0], [0.0, 4.0], [0.0, 0.0], [-3.5, 0.0], [-3.5, -3.5]]
 kp = 3.0
 ki = 0.01
 kd = 0.09
@@ -27,9 +28,8 @@ velocity = 4.0
 index = 0
 
 class Pose_listener:
-
     def __init__ (self):
-        self.listener = rospy.Subscriber('/Car_Pose_gazebo', Pose2D, self.get_Pose)
+        self.listener = rospy.Subscriber('/Car_Pose', Pose2D, self.get_Pose)
         self.pose = Pose2D()
         self.pose.x = 1.147
         self.pose.y = 1.364
@@ -78,12 +78,12 @@ if __name__ == '__main__':
       			angle = 0
 
     		prev_error = error
-    		rospy.loginfo("yaw:%lf,goal_angle:%lf,error:%lf", yaw, goal_angle, error)
+    		rospy.loginfo("x: {}, y: {}".format(x, y))
 
     		msg = drive_param()
     		msg.velocity = velocity
     		msg.angle = angle
-    		rospy.loginfo("index:%lf",index)
+    		rospy.loginfo("index: {}".format(index))
     		pub.publish(msg)
 
     		if math.sqrt(pow(goal_y - y,2) + pow(goal_x - x,2))<0.5:
@@ -91,10 +91,10 @@ if __name__ == '__main__':
     			i_error = 0
     			kp = 3.0
     			ki = 0.01
-    			if index == 1:
+    			if index == -1:
     				kp = 1.0
     				ki = 0.1
-    			if index == 3:
+    			if index == 8:
     				msg = drive_param()
     				msg.velocity = 0
     				msg.angle = 0
